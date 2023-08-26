@@ -63,9 +63,9 @@ const tableComponent = ({ data }) => {
   const handleSave = () => {};
 
   const handleSelectCategory = (e) => {
-    const newData = data.filter((d) => d.category == e.target.value);
+    const newData = editedData.filter((d) => d.category == e.target.value);
     setCurrentCategory(e.target.value);
-    setEditedData(newData);
+    setDataForTable(newData);
   };
 
   useEffect(() => {
@@ -103,7 +103,9 @@ const tableComponent = ({ data }) => {
                     {column.Header == "Category" ? (
                       <select onChange={handleSelectCategory}>
                         {categoryes.map((c) => (
-                          <option key={c} value={c}>{c}</option>
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
                         ))}
                       </select>
                     ) : null}
@@ -120,7 +122,11 @@ const tableComponent = ({ data }) => {
               <tr {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
-                    <td key={cell.row.id} {...cell.getCellProps()} className="p-2">
+                    <td
+                      key={cell.row.id}
+                      {...cell.getCellProps()}
+                      className="p-2"
+                    >
                       {cell.render("Cell")}
                     </td>
                   );
