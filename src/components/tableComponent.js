@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useTable, useSortBy } from "react-table";
-// import { v4 as uuid } from 'uuid';
 
-const MenuTable = ({ data }) => {
+const tableComponent = ({ data }) => {
+  const [currentCategory, setCurrentCategory] = useState("");
+  const [dataForTable, setDataForTable] = useState([]);
+  const [editedData, setEditedData] = useState(data);
+  const categoryes = [...new Set(data.map((e) => e.category))];
   const columns = React.useMemo(
     () => [
       {
@@ -37,12 +40,11 @@ const MenuTable = ({ data }) => {
     []
   );
 
-  const [editedData, setEditedData] = useState(data);
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(
       {
         columns,
-        data: editedData,
+        data: dataForTable,
       },
       useSortBy
     );
@@ -59,15 +61,20 @@ const MenuTable = ({ data }) => {
   };
 
   const handleSave = () => {};
-  const categoryes = [...new Set(data.map((e) => e.category))];
+
   const handleSelectCategory = (e) => {
     const newData = data.filter((d) => d.category == e.target.value);
+    setCurrentCategory(e.target.value);
     setEditedData(newData);
   };
+
   useEffect(() => {
-    const newData = data.filter((e) => e.category == categoryes?.[0]);
-    setEditedData(newData);
-  }, []);
+    const newData = editedData.filter(
+      (e) => e.category == (currentCategory || categoryes?.[0])
+    );
+    setCurrentCategory(currentCategory || categoryes?.[0]);
+    setDataForTable(newData);
+  }, [editedData]);
   return (
     <div className="p-4">
       <table {...getTableProps()} className="table border w-full">
@@ -77,6 +84,7 @@ const MenuTable = ({ data }) => {
               {headerGroup.headers.map((column) =>
                 column.Header == "Price" ? (
                   <th
+                    key={column.Header}
                     {...column.getHeaderProps(column.getSortByToggleProps())}
                     className="p-2 "
                   >
@@ -90,12 +98,12 @@ const MenuTable = ({ data }) => {
                     </span>
                   </th>
                 ) : (
-                  <th className="p-2">
+                  <th key={column.Header} className="p-2">
                     {column.render("Header")}
                     {column.Header == "Category" ? (
                       <select onChange={handleSelectCategory}>
                         {categoryes.map((c) => (
-                          <option value={c}>{c}</option>
+                          <option key={c} value={c}>{c}</option>
                         ))}
                       </select>
                     ) : null}
@@ -112,7 +120,7 @@ const MenuTable = ({ data }) => {
               <tr {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
-                    <td {...cell.getCellProps()} className="p-2">
+                    <td key={cell.row.id} {...cell.getCellProps()} className="p-2">
                       {cell.render("Cell")}
                     </td>
                   );
@@ -137,6 +145,4 @@ const MenuTable = ({ data }) => {
   );
 };
 
-export default MenuTable;
-
-
+export default tableComponent;
