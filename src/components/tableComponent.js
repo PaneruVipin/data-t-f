@@ -49,7 +49,7 @@ const tableComponent = ({ data, refetch }) => {
             type="number"
             value={row.original.price}
             onChange={(e) => handlePriceChange(row.original.id, e.target.value)}
-            className=" p-1 border rounded"
+            className=" w-full h-20 p-1 border rounded"
           />
         ),
       },
@@ -121,10 +121,9 @@ const tableComponent = ({ data, refetch }) => {
   }, [editedData]);
 
   return (
-    <div className="p-4 max-w-[90%] overflow-auto">
+    <div className="p-4 max-w-[99%] overflow-auto">
       <div className="mb-4 space-x-4">
         <button
-          disabled={!changedData.length || loading}
           onClick={handleSave}
           className="px-4 py-2 mr-2 bg-blue-500 text-white rounded disabled:bg-gray-200"
         >
@@ -144,8 +143,12 @@ const tableComponent = ({ data, refetch }) => {
             </option>
           ))}
         </select>
+        {loading && <span>Updating...</span>}
       </div>
-      <table {...getTableProps()} className="table border w-full">
+      <table
+        {...getTableProps()}
+        className="table border border-gray-300 rounded-md w-full"
+      >
         <thead>
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
@@ -154,8 +157,9 @@ const tableComponent = ({ data, refetch }) => {
                   <th
                     key={column.Header}
                     {...column.getHeaderProps(column.getSortByToggleProps())}
-                    className="p-2 "
+                    className="p-2 border border-gray-300"
                   >
+                    <div className="p-2 flex items-start ">
                     {column.render("Header")}
                     <span>
                       {column.isSorted
@@ -164,10 +168,13 @@ const tableComponent = ({ data, refetch }) => {
                           : " 🔼"
                         : ""}
                     </span>
+                    </div>
                   </th>
                 ) : (
-                  <th key={column.Header} className="p-2">
-                    {column.render("Header")}
+                  <th key={column.Header} className="p-2 border border-gray-300">
+                    <span className="p-2 flex items-start ">
+                      {column.render("Header")}
+                    </span>
                   </th>
                 )
               )}
@@ -178,13 +185,13 @@ const tableComponent = ({ data, refetch }) => {
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <tr {...row.getRowProps()}>
+              <tr  {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
                     <td
                       key={cell.row.id}
                       {...cell.getCellProps()}
-                      className="p-2"
+                      className="p-2 border border-gray-300"
                     >
                       {cell.render("Cell")}
                     </td>

@@ -21,11 +21,8 @@ export default function Home() {
   };
   return (
     <main className={` min-h-screen p-2 `}>
-      {data.length && !loading ? (
-        <TableComponent data={data} refetch={refetch} />
-      ) : (
-        <p>Loading...</p>
-      )}
+      {loading ? <p>Loading...</p> : null}
+      {data?.length ? <TableComponent data={data} refetch={refetch} /> : null}
     </main>
   );
 }
