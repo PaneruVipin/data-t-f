@@ -15,21 +15,30 @@ const tableComponent = ({ data, refetch }) => {
         Header: "ID",
         accessor: "id",
         Cell: ({ value }) => (
-          <div className="overflow-auto w-40 h-20">{value}</div>
+          <div className="overflow-auto w-20 h-20">{value}</div>
         ),
       },
       {
         Header: "Name",
         accessor: "name",
         Cell: ({ value }) => (
-          <div className="overflow-auto w-80 h-20">{value}</div>
+          <div className="overflow-auto w-60 h-20">{value}</div>
         ),
       },
       {
-        Header: "Category",
-        accessor: "category",
+        Header: "Image",
+        accessor: "image",
         Cell: ({ value }) => (
-          <div className="overflow-auto w-80 h-20">{value}</div>
+          <div className="w-40 h-20">
+            <img className="w-full h-full object-cover" src={value} />
+          </div>
+        ),
+      },
+      {
+        Header: "Label",
+        accessor: "label",
+        Cell: ({ value }) => (
+          <div className="overflow-auto w-60 h-20">{value}</div>
         ),
       },
       {
@@ -112,8 +121,8 @@ const tableComponent = ({ data, refetch }) => {
   }, [editedData]);
 
   return (
-    <div className="p-4">
-      <div className="mb-4">
+    <div className="p-4 max-w-[90%] overflow-auto">
+      <div className="mb-4 space-x-4">
         <button
           disabled={!changedData.length || loading}
           onClick={handleSave}
@@ -124,6 +133,17 @@ const tableComponent = ({ data, refetch }) => {
         <button onClick={handleReset} className="px-4 py-2 bg-gray-300 rounded">
           Reset
         </button>
+        <select
+          className="px-4 py-2 bg-gray-300 rounded"
+          defaultValue={currentCategory}
+          onChange={handleSelectCategory}
+        >
+          {categoryes.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
       </div>
       <table {...getTableProps()} className="table border w-full">
         <thead>
@@ -148,18 +168,6 @@ const tableComponent = ({ data, refetch }) => {
                 ) : (
                   <th key={column.Header} className="p-2">
                     {column.render("Header")}
-                    {column.Header == "Category" && currentCategory ? (
-                      <select
-                        defaultValue={currentCategory}
-                        onChange={handleSelectCategory}
-                      >
-                        {categoryes.map((c) => (
-                          <option key={c} value={c}>
-                            {c}
-                          </option>
-                        ))}
-                      </select>
-                    ) : null}
                   </th>
                 )
               )}
