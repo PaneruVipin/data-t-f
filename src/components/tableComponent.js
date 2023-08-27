@@ -1,7 +1,9 @@
+import { updateData } from "@/apis/data";
+import { getFromLocalStorage, setInLocalStorage } from "@/lib/localStorage";
 import React, { useEffect, useState } from "react";
 import { useTable, useSortBy } from "react-table";
 
-const tableComponent = ({ data }) => {
+const tableComponent = ({ data, refetch }) => {
   const [currentCategory, setCurrentCategory] = useState("");
   const [dataForTable, setDataForTable] = useState([]);
   const [editedData, setEditedData] = useState(data);
@@ -11,14 +13,23 @@ const tableComponent = ({ data }) => {
       {
         Header: "ID",
         accessor: "id",
+        Cell: ({ value }) => (
+          <div className="overflow-auto w-40 h-20">{value}</div>
+        ),
       },
       {
         Header: "Name",
         accessor: "name",
+        Cell: ({ value }) => (
+          <div className="overflow-auto w-80 h-20">{value}</div>
+        ),
       },
       {
         Header: "Category",
         accessor: "category",
+        Cell: ({ value }) => (
+          <div className="overflow-auto w-80 h-20">{value}</div>
+        ),
       },
       {
         Header: "Price",
@@ -35,6 +46,9 @@ const tableComponent = ({ data }) => {
       {
         Header: "Description",
         accessor: "description",
+        Cell: ({ value }) => (
+          <div className=" w-100 h-20 overflow-auto">{value}</div>
+        ),
       },
     ],
     []
@@ -60,23 +74,46 @@ const tableComponent = ({ data }) => {
     setEditedData(data);
   };
 
-  const handleSave = () => {};
+  const handleSave = () => {
+    const data = editedData.map(({ id, price }) => ({
+      id: +id,
+      price: +price,
+    }));
+    updateData({ data }).then(() => {
+      refetch();
+    });
+  };
 
   const handleSelectCategory = (e) => {
     const newData = editedData.filter((d) => d.category == e.target.value);
     setCurrentCategory(e.target.value);
+    setInLocalStorage("currentCategory", e.target.value);
     setDataForTable(newData);
   };
 
   useEffect(() => {
+    const categoryFromLocal = getFromLocalStorage("currentCategory");
     const newData = editedData.filter(
-      (e) => e.category == (currentCategory || categoryes?.[0])
+      (e) =>
+        e.category == (currentCategory || categoryFromLocal || categoryes?.[0])
     );
-    setCurrentCategory(currentCategory || categoryes?.[0]);
+    setCurrentCategory(currentCategory || categoryFromLocal || categoryes?.[0]);
     setDataForTable(newData);
   }, [editedData]);
+
   return (
     <div className="p-4">
+      <div className="mb-4">
+        <button
+          onClick={handleSave}
+          className="px-4 py-2 mr-2 bg-blue-500 text-white rounded"
+        >
+          Save
+        </button>
+        <button onClick={handleReset} className="px-4 py-2 bg-gray-300 rounded">
+          Reset
+        </button>
+      </div>
       <table {...getTableProps()} className="table border w-full">
         <thead>
           {headerGroups.map((headerGroup) => (
@@ -100,8 +137,11 @@ const tableComponent = ({ data }) => {
                 ) : (
                   <th key={column.Header} className="p-2">
                     {column.render("Header")}
-                    {column.Header == "Category" ? (
-                      <select onChange={handleSelectCategory}>
+                    {column.Header == "Category" && currentCategory ? (
+                      <select
+                        defaultValue={currentCategory}
+                        onChange={handleSelectCategory}
+                      >
                         {categoryes.map((c) => (
                           <option key={c} value={c}>
                             {c}
@@ -136,17 +176,6 @@ const tableComponent = ({ data }) => {
           })}
         </tbody>
       </table>
-      <div className="mt-4">
-        <button
-          onClick={handleSave}
-          className="px-4 py-2 mr-2 bg-blue-500 text-white rounded"
-        >
-          Save
-        </button>
-        <button onClick={handleReset} className="px-4 py-2 bg-gray-300 rounded">
-          Reset
-        </button>
-      </div>
     </div>
   );
 };

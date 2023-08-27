@@ -1,34 +1,33 @@
+import { getData } from "@/apis/data";
 import TableComponent from "@/components/tableComponent";
-import SampleTable from "@/components/tableComponent";
-import { data } from "@/utility/smapleTableData";
 import { Inter } from "next/font/google";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  const [tableData, setTableData] = useState(data);
-  const [originalData, setOriginalData] = useState(data);
-
-  const handleSave = (id, newValue) => {
-    const updatedData = tableData.map((item) =>
-      item.id === id ? { ...item, price: newValue } : item
-    );
-    setTableData(updatedData);
-  };
-
-  const handleReset = () => {
-    setTableData(originalData);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    setLoading(true);
+    getData().then((res) => {
+      setData(res?.data);
+      setLoading(false);
+    });
+  }, [count]);
+  const refetch = () => {
+    setCount(count + 1);
   };
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
     >
-      <TableComponent
-        data={tableData}
-        onSave={handleSave}
-        onReset={handleReset}
-      />
+      {data.length && !loading ? (
+        <TableComponent data={data} refetch={refetch} />
+      ) : (
+        <p>Loading...</p>
+      )}
     </main>
   );
 }
