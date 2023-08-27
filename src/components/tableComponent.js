@@ -7,6 +7,7 @@ const tableComponent = ({ data, refetch }) => {
   const [currentCategory, setCurrentCategory] = useState("");
   const [dataForTable, setDataForTable] = useState([]);
   const [editedData, setEditedData] = useState(data);
+  const [loading, setLoading] = useState(false);
   const categoryes = [...new Set(data.map((e) => e.category))];
   const columns = React.useMemo(
     () => [
@@ -73,15 +74,23 @@ const tableComponent = ({ data, refetch }) => {
   const handleReset = () => {
     setEditedData(data);
   };
-
+  const changedData = editedData.filter((obj2) => {
+    const matchingObj1 = data.find((obj1) => obj1.id === obj2.id);
+    return matchingObj1 && matchingObj1.price !== obj2.price;
+  });
   const handleSave = () => {
-    const data = editedData.map(({ id, price }) => ({
+    const data = changedData.map(({ id, price }) => ({
       id: +id,
       price: +price,
     }));
-    updateData({ data }).then(() => {
-      refetch();
-    });
+    if (data.length) {
+      setLoading(true);
+      updateData({ data }).then(() => {
+        refetch();
+        setLoading(false);
+      });
+    }
+    return;
   };
 
   const handleSelectCategory = (e) => {
@@ -89,6 +98,7 @@ const tableComponent = ({ data, refetch }) => {
     setCurrentCategory(e.target.value);
     setInLocalStorage("currentCategory", e.target.value);
     setDataForTable(newData);
+    return;
   };
 
   useEffect(() => {
@@ -105,8 +115,9 @@ const tableComponent = ({ data, refetch }) => {
     <div className="p-4">
       <div className="mb-4">
         <button
+          disabled={!changedData.length || loading}
           onClick={handleSave}
-          className="px-4 py-2 mr-2 bg-blue-500 text-white rounded"
+          className="px-4 py-2 mr-2 bg-blue-500 text-white rounded disabled:bg-gray-200"
         >
           Save
         </button>
