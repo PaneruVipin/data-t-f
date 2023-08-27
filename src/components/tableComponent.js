@@ -47,7 +47,7 @@ const tableComponent = ({ data, refetch }) => {
         Header: "Description",
         accessor: "description",
         Cell: ({ value }) => (
-          <div className=" w-100 h-20 overflow-auto">{value}</div>
+          <div className=" w-96 h-20 overflow-auto">{value}</div>
         ),
       },
     ],
